@@ -10,7 +10,9 @@ import numpy as np
 from itertools import product
 from functools import reduce
 
-from functions import (
+import sparse
+
+from sparse.functions import (
     cartesian_product,
     groupby
 )
@@ -24,6 +26,13 @@ class array:
         """
         __init__(self, shape: list or tuple, dtype = np.float64, fill_value = 0.0)
         
+        Arguments:
+            shape {tuple|list} -- Output shape
+            
+        Keyword Arguments:
+            dtype -- Default type (default: {numpy.float64})
+            fill_value {integer} -- Default value (default: {0.0})
+
         Parameters
         ----------
         shape: list or tuple of ints
@@ -60,9 +69,8 @@ class array:
         """
         pass
 
-def from_numpy(array: np.array, fill_value = 0.0):
+def from_numpy(array: np.array, fill_value = 0.0) -> array:
     """
-    from_numpy(cls, array: np.array, fill_value = 0.0)
 
     Casting from numpy.array to sparse.array.
 
@@ -88,26 +96,24 @@ def from_numpy(array: np.array, fill_value = 0.0):
     )).T
     return M
 
-def randint(low: int, high: int, sparsity: float, shape: tuple or list, fill_value = 0.0):
+def randint(low: int, high: int, sparsity: float, shape: tuple or list, fill_value = 0.0) -> array:
     """
-    randint(low: int, high: int, sparsity: float, shape: tuple or list, fill_value = 0.0)
-
-    Generate random sparse matrix.
+    Generate random sparse matrix between and interval.
 
     Arguments:
-        low {integer} -- Lower level
-        high {integer} -- Higher level
-        sparsity {float} -- 1 - density of the matrix
-        shape {tuple|list} -- Output shape
+    ----------
+    \tlow {int} -- Lower level
+    \thigh {int} -- Higher level
+    \tsparsity {float} -- Density of the matrix
+    \tshape {tuple|list} -- Output shape
 
     Keyword Arguments:
-        fill_value {integer} -- Default value (default: {0.0})
-
-    Raises:
-        TypeError -- [description]
+    ------------------
+    \tfill value {int} -- Default value (default: {0.0})
 
     Returns:
-        [sparse.array] -- Array object
+    --------
+    \tsparse.array -- Array object
     """
     M = array(shape = shape, fill_value = fill_value)
     # Number of values different from fill_value

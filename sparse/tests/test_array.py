@@ -11,6 +11,9 @@
 import unittest
 import sparse
 
+import sparse
+
 class test_array(unittest.TestCase):
     def test_randint(self):
+        M = sparse.array.array(shape = (30,10))
         self.assertEqual(0,0)
