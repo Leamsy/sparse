@@ -21,4 +21,11 @@ from sparse.array import (
     zeros,
     ones
 )
+
+from sparse.functions import (
+    cartesian_product,
+    groupby,
+    min_max
+)
+
 import sparse.utils

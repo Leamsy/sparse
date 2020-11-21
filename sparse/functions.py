@@ -11,35 +11,27 @@ import numpy as np
 
 def cartesian_product(X: list):
     """
-    cartesian_product(X: list)
+    Cartesian product applied to different type of objects.
 
-    Parameters
+    Arguments:
     ----------
-    X: list of slices, ranges or list
+    \tX {list} -- List of slices,int or list
 
     Returns
     -------
-    Numpy array object with shape (len(X),prod([len(x) for x in X]))
-
-    Descripcion
-    -----------
-    Cartesian product applied to different type of objects.
-
-    Reference
-    ---------
-    <https://www.math.uvic.ca/faculty/gmacgill/guide/RF.pdf>
-
+    \titertools.product -- Generator object with shape (len(X),prod([len(x) for x in X]))
+    
     Examples
     --------
-        >>> cartesian_product([3,[1,2],2:3,range(1,5,2)])
+        >>> cartesian_product([3,[1,2],2:3])
     """
-    tuples = product(*[
+    generator = product(*[
         range(x.start,x.stop,x.step) if isinstance(x,slice) else 
         x if isinstance(x,range) else
         x if isinstance(x,list) else
         [x] for x in X
     ])
-    return np.array([t for t in tuples])
+    return (generator)
 
 def groupby(X: np.array, by: int or list, func, output = None):
     """
@@ -73,3 +65,13 @@ def groupby(X: np.array, by: int or list, func, output = None):
     for i,j in enumerate(index):
         Y[i] = np.append(X[j,by],func(X[inverse == i][:,output], axis = 0))
     return Y
+
+def min_max(tuples, size):
+    minimum = np.full(size, np.inf)
+    maximum = np.zeros(size)
+
+    for t in tuples:
+        minimum = np.minimum(minimum,np.array(t))
+        maximum = np.maximum(maximum,np.array(t))
+    
+    return minimum, maximum

@@ -9,12 +9,14 @@
 import numpy as np
 from itertools import product
 from functools import reduce
+import random
 
 import sparse
 
 from sparse.functions import (
     cartesian_product,
-    groupby
+    groupby,
+    min_max
 )
 
 class array:
@@ -50,13 +52,39 @@ class array:
             dtype = self.dtype
         )
 
-    def __getindexes__(self, args):
+    def get_indexes(self, args):
         """
-        Get generator of indexes numpy.array
+        Get generator of indexes numpy.array and fill args
+
+        Arguments:
+        ----------
+        \targs {np.array|list} -- Indices
+
+        Return:
+        \tGenerator object
+        \tArguments args with slice filled
         """
         self.__check_indexes__(args)
-
-        raise NotImplementedError
+        args = self.__fill_slice(args)
+        args = np.array(args)
+        lindex = [
+            # Slice case
+            np.where(
+                (self.T[:,i] >= a.start) &
+                (self.T[:,i] < a.stop) &
+                (np.mod(self.T[:,i] - a.start, a.step) == 0)
+            )[0] if isinstance(a, slice) else
+            # List case
+            np.where(
+                np.isin(a, self.T[:,i])
+            )[0] if isinstance(a, list) else
+            # Int case
+            np.where(
+                self.T[:,i] == a
+            )[0] for i,a in enumerate(args)
+        ]
+        indexes = reduce(np.intersect1d, lindex)
+        return indexes, args
 
     def to_numpy(self) -> np.array:
         """
@@ -66,7 +94,10 @@ class array:
         ---------
         
         """
-        raise NotImplementedError
+        X = np.zeros(shape = self.shape) + self.fill_value
+        for row in self.T:
+            X[tuple(row[:-1].astype(int))] = row[-1]
+        return X
 
     
 
@@ -94,7 +125,33 @@ class array:
             >>> print(M[5,8])
             0
         """
-        raise NotImplementedError
+        indexes, args = self.get_indexes(args)
+        mask = np.array([isinstance(a, slice) or isinstance(a,list) for a in args])
+        # Caso de retornar un solo valor
+        if np.count_nonzero(mask) == 0:
+            if indexes.shape[0] == 0:
+                return self.fill_value
+            else:
+                return self.T[indexes[0],-1]
+        # Generador de tuplas de indices
+        generator = cartesian_product(args)
+        # Calcular máximo y mínimo de los índices
+        minimum, maximum = min_max(generator, len(args))
+        # Generar pasos para slice
+        step = np.array([
+            a.step if isinstance(a, slice) else
+            0 if isinstance(a, list) else 1
+        for a in args])
+        # Calcular shape para listas y slices
+        shape = np.array([
+            len(args[i]) if isinstance(args[i], list) else
+            np.ceil((maximum[i] - minimum[i]) / step[i])
+        for i in range(len(args)) if mask[i]]).astype(np.int64)
+        # Generar objeto de la clase
+        M = array(
+            shape = shape
+        )
+        return M
 
     def __setitem__(self, args, value):
         raise NotImplementedError
@@ -157,17 +214,17 @@ class array:
         )
         for i in range(len(args)):
             if isinstance(args[i], slice):
-                assert args[i].start is not None and args[i].start < 0, 'Start slice {i} out of range.'.format(
+                assert (args[i].start == None) or (args[i].start >= 0), 'Start slice {i} out of range.'.format(
                     i = i
                 )
-                assert args[i].stop is not None and args[i].stop >= self.shape[i], 'Stop slice {i} out of range.'.format(
+                assert (args[i].stop == None) or (args[i].stop < self.shape[i]), 'Stop slice {i} out of range.'.format(
                     i = i
                 )
-                assert args[i].step is not None and args[i].step >= self.shape[i], 'Step slice {i} out of range.'.format(
+                assert (args[i].step == None) or (args[i].step < self.shape[i]), 'Step slice {i} out of range.'.format(
                     i = i
                 )
             if isinstance(args[i], list):
-                assert all([v in range(self.shape[i]) for v in args[i]]), 'List values {} out of range.'.format(
+                assert all([v in range(self.shape[i]) for v in args[i]]), 'List values {i} out of range.'.format(
                     i = i
                 )
             if isinstance(args[i], int):
@@ -187,8 +244,12 @@ class array:
         -------
         \tlist -- List obj
         """
-
-        pass
+        args = [slice(
+            arg.start if arg.start != None else 0,
+            arg.stop if arg.stop != None else self.shape[i],
+            arg.step if arg.step != None else 1,
+        ) if isinstance(arg,slice) else arg for i,arg in enumerate(args)]
+        return args
 
     # Numpy functions
 
@@ -276,12 +337,14 @@ def randint(low: int, high: int, sparsity: float, shape: tuple or list, fill_val
     M = array(shape = shape, fill_value = fill_value)
     # Number of values different from fill_value
     n = int(np.floor(np.array(shape).prod() * sparsity))
-    M.T = np.vstack(
-        # Indexes of the matrix
-        [np.random.randint(0,shape[i], size = n) for i in range(len(shape))] +
-        # Values
-        [np.random.randint(low,high,n)]
-    ).T
+    # 
+    index = np.array(random.sample(range(np.array(shape).prod()), n))
+    values = np.random.randint(low, high, n)
+    M.T = np.zeros((n,len(shape) + 1))
+    for i in range(len(shape)):
+        M.T[:,len(shape) - i - 1] = np.mod(index, shape[len(shape) - i - 1])
+        index = np.floor_divide(index, shape[len(shape) - i - 1])
+    M.T[:,-1] = values
     return M
 
 def zeros(shape: list or tuple, dtype = np.float64):
