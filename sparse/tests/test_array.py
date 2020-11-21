@@ -15,17 +15,27 @@ import sparse
 
 class test_array(unittest.TestCase):
     def test_randint(self):
+        shape = (30,10)
+        low = 0
+        high = 10
+        sparsity = 0.2
         M = sparse.randint(
-            low = 0,
-            high = 10,
-            sparsity = 0.2,
-            shape = (30,10)
+            low = low,
+            high = high,
+            sparsity = sparsity,
+            shape = shape
         )
-        self.assertEqual(0,0)
+        self.assertLess(M.T[:,-1].max(), high)
+        self.assertGreaterEqual(M.T[:,-1].min(), low)
+        self.assertTrue(np.array_equal(M.shape,np.array(shape)))
+        self.assertAlmostEqual(sparsity,M.T.shape[0]/float(M.shape.prod()))
     
     def test_from_numpy(self):
-        M = sparse.from_numpy(np.ones(shape = (30,10)))
-        self.assertEqual(0,0)
+        shape = (30,10)
+        M1 = np.ones(shape = shape)
+        M2 = sparse.from_numpy(M1)
+        self.assertTrue(np.array_equal(np.array(M1.shape),M2.shape))
+        self.assertEqual(np.count_nonzero(M1 != 0), M2.T.shape[0])
 
     def test_to_numpy(self):
         M = sparse.randint(
