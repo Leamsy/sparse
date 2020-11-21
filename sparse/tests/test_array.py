@@ -38,13 +38,19 @@ class test_array(unittest.TestCase):
         self.assertEqual(np.count_nonzero(M1 != 0), M2.T.shape[0])
 
     def test_to_numpy(self):
-        M = sparse.randint(
+        shape = (10,10)
+        M1 = sparse.randint(
             low = 0,
             high = 10,
             sparsity = 0.1,
-            shape = (10,10),
+            shape = shape,
             fill_value = 0
         )
+        M2 = M1.to_numpy()
+        self.assertTrue(np.array_equal(
+            np.array(M2.shape),
+            np.array(shape)
+        ))
     
     def test_zeros(self):
         M1 = sparse.zeros(shape = (30,30))
@@ -53,6 +59,10 @@ class test_array(unittest.TestCase):
             M1.to_numpy(),
             M2
         ))
+        self.assertEqual(
+            M1.T.shape[0],
+            0
+        )
 
     def test_getitem(self):
         pass
@@ -100,4 +110,19 @@ class test_array(unittest.TestCase):
         self.assertTrue(np.array_equal(
             M1[L1,L2].to_numpy(),
             M2[0:4:2,1:5:2]
+        ))
+
+    def test_getitem_all(self):
+        shape = (10,10,10)
+        M1 = sparse.randint(
+            low = 1,
+            high = 10,
+            sparsity = 0.5,
+            shape = shape,
+            fill_value = 0
+        )
+        M2 = M1.to_numpy()
+        self.assertTrue(np.array_equal(
+            M1[:2,[0,1],0].to_numpy(),
+            M2[:2,:2,0]
         ))
