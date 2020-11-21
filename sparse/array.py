@@ -76,8 +76,8 @@ class array:
             )[0] if isinstance(a, slice) else
             # List case
             np.where(
-                np.isin(a, self.T[:,i])
-            )[0] if isinstance(a, list) else
+                np.isin(self.T[:,i], a)
+            )[0] if isinstance(a, list) or isinstance(a, np.ndarray) else
             # Int case
             np.where(
                 self.T[:,i] == a
@@ -126,7 +126,7 @@ class array:
             0
         """
         indexes, args = self.get_indexes(args)
-        mask = np.array([isinstance(a, slice) or isinstance(a,list) for a in args])
+        mask = np.array([isinstance(a, slice) or isinstance(a,list) or isinstance(a,np.ndarray) for a in args])
         # Caso de retornar un solo valor
         if np.count_nonzero(mask) == 0:
             if indexes.shape[0] == 0:
@@ -144,13 +144,28 @@ class array:
         for a in args])
         # Calcular shape para listas y slices
         shape = np.array([
-            len(args[i]) if isinstance(args[i], list) else
-            np.ceil((maximum[i] - minimum[i]) / step[i])
+            len(args[i]) if isinstance(args[i], list) or isinstance(args[i], np.ndarray) else
+            np.ceil((maximum[i] - minimum[i] + 1) / step[i])
         for i in range(len(args)) if mask[i]]).astype(np.int64)
         # Generar objeto de la clase
         M = array(
             shape = shape
         )
+        if indexes.shape[0] != 0:
+            M.T = self.T[:,np.where(np.append(mask,True))[0]][indexes]
+            mask = np.array([i for i,a in enumerate(args) if isinstance(a, slice)])
+            if mask.shape[0] != 0:
+                M.T[:,mask] = np.floor(
+                    (M.T[:,mask] - minimum[mask]) / step[mask]
+                ).astype(np.int64)
+            mask = np.array([i for i,a in enumerate(args) if isinstance(a, list) or isinstance(a, np.ndarray)])
+            for i in mask:
+                change = {}
+                for k,j in enumerate(args[i]):
+                    change[j] = k
+                for k,j in enumerate(M.T[:,i]):
+                    M.T[k,i] = change[M.T[k,i]]
+            M.T = M.T.astype(np.int64)
         return M
 
     def __setitem__(self, args, value):
