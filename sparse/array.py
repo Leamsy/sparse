@@ -96,7 +96,7 @@ class array:
         """
         X = np.zeros(shape = self.shape) + self.fill_value
         for row in self.T:
-            X[tuple(row[:-1].astype(int))] = row[-1]
+            X[tuple(row[:-1].astype(np.int64))] = row[-1]
         return X
 
     
@@ -149,15 +149,20 @@ class array:
         for i in range(len(args)) if mask[i]]).astype(np.int64)
         # Generar objeto de la clase
         M = array(
-            shape = shape
+            shape = shape,
+            dtype = self.dtype,
+            fill_value = self.fill_value
         )
+        # Algún valor distinto de fill_value
         if indexes.shape[0] != 0:
             M.T = self.T[:,np.where(np.append(mask,True))[0]][indexes]
+            # Completar slices
             mask = np.array([i for i,a in enumerate(args) if isinstance(a, slice)])
             if mask.shape[0] != 0:
                 M.T[:,mask] = np.floor(
                     (M.T[:,mask] - minimum[mask]) / step[mask]
-                ).astype(np.int64)
+                )
+            # Completar list
             mask = np.array([i for i,a in enumerate(args) if isinstance(a, list) or isinstance(a, np.ndarray)])
             for i in mask:
                 change = {}
@@ -165,7 +170,6 @@ class array:
                     change[j] = k
                 for k,j in enumerate(M.T[:,i]):
                     M.T[k,i] = change[M.T[k,i]]
-            M.T = M.T.astype(np.int64)
         return M
 
     def __setitem__(self, args, value):
