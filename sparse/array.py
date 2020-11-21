@@ -35,10 +35,12 @@ class array:
         
         Examples:
         ---------
-        >>> import sparse
-        >>> M1 = sparse.array([20,20], np.float64, 3)
-        >>> M2 = sparse.array([20,20,20], np.float64)
-        >>> M3 = sparse.array([20,20,20], fill_value = 3.5)
+
+            >>> import sparse
+            >>> M1 = sparse.array([20,20], np.float64, 3)
+            >>> M2 = sparse.array([20,20,20], np.float64)
+            >>> M3 = sparse.array([20,20,20], fill_value = 3.5)
+        
         """
         self.shape = np.array(shape)
         self.dtype = dtype
@@ -47,6 +49,28 @@ class array:
             shape = (0,self.shape.shape[0] + 1), 
             dtype = self.dtype
         )
+
+    def __getindexes__(self, args):
+        """
+        Get generator of indexes numpy.array
+        """
+        self.__check_indexes__(args)
+
+        raise NotImplementedError
+
+    def to_numpy(self) -> np.array:
+        """
+        Casting from sparse.array to numpy.array
+
+        Examples:
+        ---------
+        
+        """
+        raise NotImplementedError
+
+    
+
+    # Bracket operator
 
     def __getitem__(self, args):
         """
@@ -60,34 +84,113 @@ class array:
         --------
         \tsparse.array|dtype -- Submatrix or one value
 
-        Examples:
-        ---------
-        >>> import sparse
-        >>> M = sparse.zeros((20,20))
-        >>> print(M[2:10,:15].shape)
-        array([8,15])
-        >>> print(M[[1,2,3],[1,2,3]].shape)
-        array([3,3])
-        >>> print(M[5,8])
-        0
+        Examples::
+            >>> import sparse
+            >>> M = sparse.zeros((20,20))
+            >>> print(M[2:10,:15].shape)
+            array([8,15])
+            >>> print(M[[1,2,3],[1,2,3]].shape)
+            array([3,3])
+            >>> print(M[5,8])
+            0
         """
         raise NotImplementedError
 
     def __setitem__(self, args, value):
         raise NotImplementedError
 
-    def __getindexes__(self, args):
+    # Arithmetic operators
+
+    def __add__(self, obj):
         raise NotImplementedError
 
-    def to_numpy(self) -> np.array:
-        """
-        Casting from sparse.array to numpy.array
+    def __sub__(self, obj):
+        raise NotImplementedError
 
-        Examples:
-        ---------
+    def __mul__(self, obj):
+        raise NotImplementedError
+
+    # Logical operators
+
+    def __lt__(self, obj):
+        raise NotImplementedError
+
+    def __le__(self, obj):
+        raise NotImplementedError
+
+    def __eq__(self, obj):
+        raise NotImplementedError
+
+    def __ne__(self, obj):
+        raise NotImplementedError
+
+    def __gt__(self, obj):
+        raise NotImplementedError
+
+    def __ge__(self, obj):
+        raise NotImplementedError
+
+    # Str operator
+
+    def __str__(self):
+        string = '<sparse: shape={shape}>, dtype={dtype}, n0v={n0v}, fill_value={fill_value}'.format(
+            shape = self.shape,
+            dtype = self.dtype,
+            n0v = self.T.shape[0],
+            fill_value = self.fill_value
+        )
+        return string
+
+    # Check arguments
+
+    def __check_indexes__(self, args):
+        """
+        Check dimensions of incoming indexes.
         
+        Arguments:
+        ----------
+        \targs {list of {slice|list|int}} -- Indexes ranges
         """
-        raise NotImplementedError
+        assert len(args) == len(self.shape), 'Error: number of indexes {input} != {obj}.'.format(
+            input = len(args),
+            obj = len(self.shape)
+        )
+        for i in range(len(args)):
+            if isinstance(args[i], slice):
+                assert args[i].start is not None and args[i].start < 0, 'Start slice {i} out of range.'.format(
+                    i = i
+                )
+                assert args[i].stop is not None and args[i].stop >= self.shape[i], 'Stop slice {i} out of range.'.format(
+                    i = i
+                )
+                assert args[i].step is not None and args[i].step >= self.shape[i], 'Step slice {i} out of range.'.format(
+                    i = i
+                )
+            if isinstance(args[i], list):
+                assert all([v in range(self.shape[i]) for v in args[i]]), 'List values {} out of range.'.format(
+                    i = i
+                )
+            if isinstance(args[i], int):
+                assert args[i] in range(self.shape[i]), 'Value {i} out of range.'.format(
+                    i = i
+                )
+
+    def __fill_slice(self, args):
+        """
+        Complete values of default slice
+
+        Arguments:
+        ----------
+        \targs {list of {slice|list|int}} -- Indexes ranges
+
+        Return:
+        -------
+        \tlist -- List obj
+        """
+
+        pass
+
+    # Numpy functions
 
     def dot(self, obj):
         raise NotImplementedError
@@ -105,6 +208,12 @@ class array:
         raise NotImplementedError
 
     def std(self, axis = None):
+        raise NotImplementedError
+
+    def min(self, axis = None):
+        raise NotImplementedError
+
+    def max(self, axis = None):
         raise NotImplementedError
 
 def from_numpy(obj: np.array, fill_value = 0.0) -> array:
@@ -125,8 +234,8 @@ def from_numpy(obj: np.array, fill_value = 0.0) -> array:
     
     Examples:
     ---------
-    >>> import sparse
-    >>> M 
+        >>> import sparse
+        >>> M 
     """
     M = array(
         shape = obj.shape,
@@ -162,7 +271,7 @@ def randint(low: int, high: int, sparsity: float, shape: tuple or list, fill_val
 
     Examples:
     ---------
-    >>> import sparse
+        >>> import sparse
     """
     M = array(shape = shape, fill_value = fill_value)
     # Number of values different from fill_value
