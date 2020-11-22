@@ -17,7 +17,6 @@ import warnings
 from sparse.array import (
     array,
     from_numpy,
-    randint,
     zeros,
     ones
 )
@@ -29,3 +28,4 @@ from sparse.functions import (
 )
 
 import sparse.utils
+import sparse.random
