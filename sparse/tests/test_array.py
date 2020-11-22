@@ -19,7 +19,7 @@ class test_array(unittest.TestCase):
         low = 0
         high = 10
         sparsity = 0.2
-        M = sparse.randint(
+        M = sparse.random.randint(
             low = low,
             high = high,
             sparsity = sparsity,
@@ -39,7 +39,7 @@ class test_array(unittest.TestCase):
 
     def test_to_numpy(self):
         shape = (10,10)
-        M1 = sparse.randint(
+        M1 = sparse.random.randint(
             low = 0,
             high = 10,
             sparsity = 0.1,
@@ -69,7 +69,7 @@ class test_array(unittest.TestCase):
 
     def test_getitem_one_value(self):
         shape = (5,5)
-        M1 = sparse.randint(
+        M1 = sparse.random.randint(
             low = 1,
             high = 10,
             sparsity = 0.9,
@@ -82,7 +82,7 @@ class test_array(unittest.TestCase):
     
     def test_getitem_slice(self):
         shape = (50,50,50)
-        M1 = sparse.randint(
+        M1 = sparse.random.randint(
             low = 1,
             high = 10,
             sparsity = 0.5,
@@ -97,7 +97,7 @@ class test_array(unittest.TestCase):
 
     def test_getitem_list(self):
         shape = (40,40)
-        M1 = sparse.randint(
+        M1 = sparse.random.randint(
             low = 1,
             high = 10,
             sparsity = 0.5,
@@ -114,7 +114,7 @@ class test_array(unittest.TestCase):
 
     def test_getitem_all(self):
         shape = (10,10,10)
-        M1 = sparse.randint(
+        M1 = sparse.random.randint(
             low = 1,
             high = 10,
             sparsity = 0.5,
@@ -126,3 +126,54 @@ class test_array(unittest.TestCase):
             M1[:2,[0,1],0].to_numpy(),
             M2[:2,:2,0]
         ))
+
+    def test_setitem_value2value(self):
+        shape = (10,10,10)
+        M1 = sparse.random.randint(
+            low = 1,
+            high = 10,
+            sparsity = 0.8,
+            shape = shape,
+            fill_value = 0
+        )
+        M1[1,2,3] = 5
+        self.assertEqual(M1[1,2,3],5)
+        M2 = M1.to_numpy()
+        self.assertEqual(M2[1,2,3],5)
+
+    def test_setitem_array2value(self):
+        shape = (10,10)
+        M1 = sparse.random.randint(
+            low = 1,
+            high = 10,
+            sparsity = 0.8,
+            shape = shape,
+            fill_value = 0
+        )
+        M1[:3,:6] = 5
+        M2 = M1.to_numpy()
+        self.assertTrue(np.all(M2[:3,:6] == 5))
+
+    def test_setitem_array2array_fill_value_equal(self):
+        shape = (100,100)
+        M1 = sparse.random.randint(
+            low = 1,
+            high = 10,
+            sparsity = 0.8,
+            shape = shape,
+            fill_value = 0
+        )
+        shape = (4,4)
+        M2 = sparse.random.randint(
+            low = 1,
+            high = 10,
+            sparsity = 0.8,
+            shape = shape,
+            fill_value = 0
+        )
+        M1[:4,:4] = M2
+        self.assertTrue(np.all(
+            M1[:4,:4].to_numpy() == M2.to_numpy()
+        ))
+        
+        

@@ -1,7 +1,7 @@
 # -----------------------------------------------------------------------------
 # 
 # 
-# (C) 2020 Ernesto Martínez del Pino, Grenade, Spain
+# (C) 2020 Ernesto Martínez del Pino, Granada, Spain
 # Released under GNU Public Licence (GPL)
 # email: ernestomar1997@hotmail.com
 # -----------------------------------------------------------------------------

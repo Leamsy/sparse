@@ -1,7 +1,7 @@
 # -----------------------------------------------------------------------------
 # 
 # 
-# (C) 2020 Ernesto Martínez del Pino, Grenade, Spain
+# (C) 2020 Ernesto Martínez del Pino, Granada, Spain
 # Released under GNU Public Licence (GPL)
 # email: ernestomar1997@hotmail.com
 # -----------------------------------------------------------------------------
@@ -75,3 +75,6 @@ def min_max(tuples, size):
         maximum = np.maximum(maximum,np.array(t))
     
     return minimum, maximum
+
+def minus_row_index(X: np.array,Y: np.array):
+    return np.where([False if any([np.all(x == y) for y in Y]) else True for x in X])

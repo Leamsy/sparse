@@ -1,7 +1,7 @@
 # -----------------------------------------------------------------------------
 # 
 # 
-# (C) 2020 Ernesto Martínez del Pino, Grenade, Spain
+# (C) 2020 Ernesto Martínez del Pino, Granada, Spain
 # Released under GNU Public Licence (GPL)
 # email: ernestomar1997@hotmail.com
 # -----------------------------------------------------------------------------
@@ -173,8 +173,38 @@ class array:
         return M
 
     def __setitem__(self, args, value):
-        raise NotImplementedError
+        # Índices sobre self.T
+        indexes, args = self.get_indexes(args)
+        # Generador de tuplas de indices
+        self_gen = cartesian_product(args)
 
+        # Si value es int
+        if isinstance(value,int):
+            # Índices nuevos
+            T = np.array([np.append(index,value) for index in self_gen])
+            if T.shape[0] != 0: 
+                self.T = np.vstack([self.T,T])
+                func = lambda x,axis: value if value in x else x[0,0]
+                self.T = groupby(
+                    X = self.T, 
+                    by = [i for i in range(len(self.shape))], 
+                    func = func,
+                    output = [len(self.shape)]
+                )
+            else: self.T = np.vstack([[np.append(args,value)]])
+        
+        # Si value es sparse.array
+        if isinstance(value,array):
+            # Calcular máximo y mínimo de los índices
+            minimum,_ = min_max(self_gen, len(args))
+            # Si fill_value es mismo
+            if self.fill_value == value.fill_value:
+                self.T = np.delete(self.T, indexes, 0)
+                value.T[:,:-1] += minimum
+                self.T = np.vstack([self.T,value.T])
+            else:
+                pass
+    
     # Arithmetic operators
 
     def __add__(self, obj):
@@ -209,7 +239,7 @@ class array:
     # Str operator
 
     def __str__(self):
-        string = '<sparse: shape={shape}>, dtype={dtype}, n0v={n0v}, fill_value={fill_value}'.format(
+        string = '<sparse: shape={shape}>, dtype={dtype}, n0v={n0v}, fill_value={fill_value}>'.format(
             shape = self.shape,
             dtype = self.dtype,
             n0v = self.T.shape[0],
