@@ -175,5 +175,8 @@ class test_array(unittest.TestCase):
         self.assertTrue(np.all(
             M1[:4,:4].to_numpy() == M2.to_numpy()
         ))
+
+    def test_setitem_array2array_fill_value_not_equal(self):
+        raise NotImplementedError
         
         
