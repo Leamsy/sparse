@@ -13,10 +13,10 @@ import numpy as np
 
 import sparse
 
-class test_array(unittest.TestCase):
+class ArrayTest(unittest.TestCase):
     def test_randint(self):
         shape = (30,10)
-        low = 0
+        low = 1
         high = 10
         sparsity = 0.2
         M = sparse.random.randint(
@@ -40,7 +40,7 @@ class test_array(unittest.TestCase):
     def test_to_numpy(self):
         shape = (10,10)
         M1 = sparse.random.randint(
-            low = 0,
+            low = 1,
             high = 10,
             sparsity = 0.1,
             shape = shape,
@@ -177,6 +177,23 @@ class test_array(unittest.TestCase):
         ))
 
     def test_setitem_array2array_fill_value_not_equal(self):
-        raise NotImplementedError
+        shape = (10,10)
+        M1 = sparse.random.randint(
+            low = 1,
+            high = 10,
+            sparsity = 0.8,
+            shape = shape,
+            fill_value = 0
+        )
+        shape = (2,2)
+        M2 = sparse.random.randint(
+            low = 2,
+            high = 10,
+            sparsity = 0.8,
+            shape = shape,
+            fill_value = 1
+        )
+        M1[0:4:2,0:4:2] = M2
+        self.assertTrue(np.all(M1[0:4:2,0:4:2].to_numpy() == M2.to_numpy()))
         
         

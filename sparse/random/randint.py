@@ -33,6 +33,11 @@ def randint(low: int, high: int, sparsity: float, shape: tuple or list, fill_val
     ---------
         >>> import sparse
     """
+    assert(fill_value not in range(low,high)), 'Error: Uniform distribution not valid {a} in ({b},{c})'.format(
+        a = fill_value,
+        b = low,
+        c = high
+    )
     M = sparse.array(shape = shape, fill_value = fill_value)
     # Number of values different from fill_value
     n = int(np.floor(np.array(shape).prod() * sparsity))

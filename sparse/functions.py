@@ -76,5 +76,49 @@ def min_max(tuples, size):
     
     return minimum, maximum
 
-def minus_row_index(X: np.array,Y: np.array):
+def minus_row_index(X: np.array, Y: np.array):
     return np.where([False if any([np.all(x == y) for y in Y]) else True for x in X])
+
+def nindex_to_oneindex(nindex: np.array, shape: np.array):
+    I = np.zeros(shape = nindex.shape[0])
+    for i in range(shape.shape[0]):
+        I += nindex[:,i] * shape[:i].prod()
+    return I.astype(np.int64)
+
+def oneindex_to_nindex(oneindex: np.array, shape: np.array):
+    I = np.zeros(shape = (oneindex.shape[0],shape.shape[0]), dtype = np.int64)
+    iacc = oneindex
+    for i in range(shape.shape[0]-1,-1,-1):
+        I[:,i] = np.floor_divide(iacc,shape[:i].prod())
+        iacc = np.mod(iacc,shape[:i].prod())
+    return I.astype(np.int64)
+
+def max_oneindex(shape: np.array):
+    return shape.prod()
+
+def inverse_filter_coordinates(X,args):
+    Y = np.zeros((X.shape[0],len(args)))
+    for i,a in enumerate(args):
+        if isinstance(a,list) or isinstance(a,np.ndarray):
+            Y[:,i] = np.array([a[x] for x in X[:,i]])
+        if isinstance(a,slice):
+            Y[:,i] = (X[:,i] + a.start) * a.step
+        if isinstance(a,int):
+            Y[:,i] = a
+    return Y.astype(np.int64)
+
+def filter_coordinates(X,args):
+    args = np.array(args)
+    f = lambda x: isinstance(x,list) or isinstance(x,np.ndarray) or isinstance(x,slice)
+    mask = [i for i,a in enumerate(args) if f(a)]
+    Y = np.zeros((X.shape[0],len(mask)))
+    for i,a in enumerate(args[mask]):
+        if isinstance(a,list) or isinstance(a,np.ndarray):
+            if len(a) != len(set(a)): Warning('Error transform')
+            A = dict(zip(a,np.arange(len(a))))
+            Y[:,i] = np.array([A[x] for x in X[:,i]])
+        if isinstance(a,slice):
+            Y[:,i] = (X[:,i] - a.start) / a.step
+    return Y.astype(np.int64)
+
+    

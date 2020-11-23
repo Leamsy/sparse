@@ -24,7 +24,12 @@ from sparse.array import (
 from sparse.functions import (
     cartesian_product,
     groupby,
-    min_max
+    min_max,
+    nindex_to_oneindex,
+    oneindex_to_nindex,
+    max_oneindex,
+    inverse_filter_coordinates,
+    filter_coordinates
 )
 
 import sparse.utils

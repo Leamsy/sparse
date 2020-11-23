@@ -16,7 +16,12 @@ import sparse
 from sparse.functions import (
     cartesian_product,
     groupby,
-    min_max
+    min_max,
+    nindex_to_oneindex,
+    oneindex_to_nindex,
+    max_oneindex,
+    inverse_filter_coordinates,
+    filter_coordinates
 )
 
 class array:
@@ -100,6 +105,8 @@ class array:
         return X
 
     
+    
+    
 
     # Bracket operator
 
@@ -177,7 +184,6 @@ class array:
         indexes, args = self.get_indexes(args)
         # Generador de tuplas de indices
         self_gen = cartesian_product(args)
-
         # Si value es int
         if isinstance(value,int):
             # Índices nuevos
@@ -195,16 +201,43 @@ class array:
         
         # Si value es sparse.array
         if isinstance(value,array):
-            # Calcular máximo y mínimo de los índices
-            minimum,_ = min_max(self_gen, len(args))
-            # Si fill_value es mismo
+            self.T = np.delete(self.T, indexes, 0)
             if self.fill_value == value.fill_value:
-                self.T = np.delete(self.T, indexes, 0)
-                value.T[:,:-1] += minimum
-                self.T = np.vstack([self.T,value.T])
+                self.T = np.vstack([
+                    self.T,
+                    np.hstack([
+                        inverse_filter_coordinates(value.T[:,:-1],args),
+                        value.T[:,-1].reshape(-1,1)
+                    ])
+                ])
             else:
-                pass
-    
+                # Indices de dimensión n a unidimensional
+                oneindex = nindex_to_oneindex(value.T[:,:-1],value.shape)
+                # Optimizar búsqueda logarítmica
+                opt = set(oneindex)
+                # fill_value a indices densos
+                oneindex_fill_value = np.array(
+                    [i for i in range(max_oneindex(value.shape)) if i not in opt
+                ])
+                # Indices densos contraidos con fill_value
+                B = np.hstack([
+                    oneindex_to_nindex(oneindex_fill_value,value.shape),
+                    np.repeat(value.fill_value,oneindex_fill_value.shape[0]).reshape(-1,1)
+                ])
+                # Unión de todos los conjuntos
+                self.T = np.vstack([
+                    self.T,
+                    np.hstack([
+                        inverse_filter_coordinates(value.T[:,:-1],args),
+                        value.T[:,-1].reshape(-1,1)
+                    ]),
+                    np.hstack([
+                        inverse_filter_coordinates(B[:,:-1],args),
+                        B[:,-1].reshape(-1,1)
+                    ])
+                ])
+
+
     # Arithmetic operators
 
     def __add__(self, obj):
