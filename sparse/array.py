@@ -69,6 +69,8 @@ class array:
         \tGenerator object
         \tArguments args with slice filled
         """
+        args = args if isinstance(args,list) or isinstance(args,tuple) else [args]
+        print(args)
         self.__check_indexes__(args)
         args = self.__fill_slice(args)
         args = np.array(args)

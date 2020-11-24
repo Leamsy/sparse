@@ -104,11 +104,14 @@ def max_oneindex(shape: np.array):
 
 def inverse_filter_coordinates(X,args):
     Y = np.zeros((X.shape[0],len(args)))
+    j = 0
     for i,a in enumerate(args):
         if isinstance(a,list) or isinstance(a,np.ndarray):
-            Y[:,i] = np.array([a[x] for x in X[:,i]])
+            Y[:,i] = np.array([a[x] for x in X[:,j]])
+            j += 1
         if isinstance(a,slice):
-            Y[:,i] = (X[:,i] + a.start) * a.step
+            Y[:,i] = (X[:,j] + a.start) * a.step
+            j += 1
         if isinstance(a,int):
             Y[:,i] = a
     return Y.astype(np.int64)

@@ -156,7 +156,13 @@ class IndexTest(unittest.TestCase):
     
     def test_indexrandom2(self):
         M1 = sparse.zeros(shape = 10)
+        M1[:10] = 2
         print(M1.to_numpy())
+        M2 = sparse.zeros(shape = (10,10))
+        M2[:,3] = M1
+        print(M2.to_numpy())
+        M2[3,:] = M1
+        print(M2.to_numpy())
 
 class GeneralTest(unittest.TestCase):
     def test_randint(self):
