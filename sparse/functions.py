@@ -11,19 +11,25 @@ import numpy as np
 
 def cartesian_product(X: list):
     """
-    Cartesian product applied to different type of objects.
+    Cartesian product applied to different type of objects:
+    1. slices
+    2. list
+    3. int
 
     Arguments:
     ----------
     \tX {list} -- List of slices,int or list
 
-    Returns
-    -------
+    Returns:
+    --------
     \titertools.product -- Generator object with shape (len(X),prod([len(x) for x in X]))
     
-    Examples
-    --------
-        >>> cartesian_product([3,[1,2],2:3])
+    Examples:
+    ---------
+        >>> import sparse
+        >>> generator = sparse.functions.cartesian_product([3,[1,2],slice(2,4,1)])
+        >>> print([g for g in generator])
+        >>> [(3, 1, 2), (3, 1, 3), (3, 2, 2), (3, 2, 3)]
     """
     generator = product(*[
         range(x.start,x.stop,x.step) if isinstance(x,slice) else 

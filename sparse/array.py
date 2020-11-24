@@ -49,7 +49,7 @@ class array:
             >>> M3 = sparse.array([20,20,20], fill_value = 3.5)
         
         """
-        self.shape = np.array(shape)
+        self.shape = np.array([shape] if isinstance(shape,int) else shape)
         self.dtype = dtype
         self.fill_value = fill_value
         self.T = np.zeros(
@@ -299,7 +299,7 @@ class array:
                 assert (args[i].start == None) or (args[i].start >= 0), 'Start slice {i} out of range.'.format(
                     i = i
                 )
-                assert (args[i].stop == None) or (args[i].stop < self.shape[i]), 'Stop slice {i} out of range.'.format(
+                assert (args[i].stop == None) or (args[i].stop <= self.shape[i]), 'Stop slice {i} out of range.'.format(
                     i = i
                 )
                 assert (args[i].step == None) or (args[i].step < self.shape[i]), 'Step slice {i} out of range.'.format(
