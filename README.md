@@ -4,27 +4,6 @@ Documentation
 -------------
 The documentation associated with the module can be found in the doc strings of the functions and methods.
 
-This is the structure of the documentation:
-```python
-def f(a, b = 0):
-    """
-    [Description]
-
-    Arguments:
-    ----------
-        a {type} -- [Description]
-
-    Keyword Arguments:
-    ------------------
-        b {type} -- [Description] (default: {value})
-    
-    Return:
-    -------
-        {type} -- [Description]
-    """
-    return 0
-```
-
 Dependencies
 ------------
 
