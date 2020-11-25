@@ -163,6 +163,9 @@ class IndexTest(unittest.TestCase):
         print(M2.to_numpy())
         M2[3,:] = M1
         print(M2.to_numpy())
+         = sparse.zeros(shape = (6,6))
+        M3[]
+        M2[2:9,2:9] = M3
 
 class GeneralTest(unittest.TestCase):
     def test_randint(self):
