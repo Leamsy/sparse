@@ -163,9 +163,6 @@ class IndexTest(unittest.TestCase):
         print(M2.to_numpy())
         M2[3,:] = M1
         print(M2.to_numpy())
-         = sparse.zeros(shape = (6,6))
-        M3[]
-        M2[2:9,2:9] = M3
 
 class GeneralTest(unittest.TestCase):
     def test_randint(self):
@@ -217,6 +214,131 @@ class GeneralTest(unittest.TestCase):
             M1.T.shape[0],
             0
         )
+
+class Operator(unittest.TestCase):
+    def test_sum_sparse_value(self):
+        shape = (30,10)
+        low = 1
+        high = 10
+        sparsity = 0.2
+        M1 = sparse.random.randint(
+            low = low,
+            high = high,
+            sparsity = sparsity,
+            shape = shape
+        )
+        value = 5
+        self.assertTrue(np.array_equal(
+            M1.to_numpy() + value,
+            (M1 + value).to_numpy()
+        ))
+
+    def test_sum_sparse_sparse(self):
+        shape = (3,3)
+        low = 1
+        high = 10
+        sparsity = 0.4
+        M1 = sparse.random.randint(
+            low = low,
+            high = high,
+            sparsity = sparsity,
+            shape = shape
+        )
+        M2 = sparse.random.randint(
+            low = low,
+            high = high,
+            sparsity = sparsity,
+            shape = shape
+        )
+        self.assertTrue(np.array_equal(
+            M1.to_numpy() + M2.to_numpy(),
+            (M1 + M2).to_numpy()
+        ))
+
+    def test_subtract_sparse_value(self):
+        shape = (30,10)
+        low = 1
+        high = 10
+        sparsity = 0.2
+        M1 = sparse.random.randint(
+            low = low,
+            high = high,
+            sparsity = sparsity,
+            shape = shape
+        )
+        value = 5
+        self.assertTrue(np.array_equal(
+            M1.to_numpy() - value,
+            (M1 - value).to_numpy()
+        ))
+
+    def test_subtract_sparse_sparse(self):
+        shape = (3,3)
+        low = 1
+        high = 10
+        sparsity = 0.4
+        M1 = sparse.random.randint(
+            low = low,
+            high = high,
+            sparsity = sparsity,
+            shape = shape
+        )
+        M2 = sparse.random.randint(
+            low = low,
+            high = high,
+            sparsity = sparsity,
+            shape = shape
+        )
+        self.assertTrue(np.array_equal(
+            M1.to_numpy() - M2.to_numpy(),
+            (M1 - M2).to_numpy()
+        ))
+
+    def test_product_sparse_value(self):
+        shape = (30,10)
+        low = 1
+        high = 10
+        sparsity = 0.2
+        M1 = sparse.random.randint(
+            low = low,
+            high = high,
+            sparsity = sparsity,
+            shape = shape
+        )
+        value = 5
+        self.assertTrue(np.array_equal(
+            M1.to_numpy() * value,
+            (M1 * value).to_numpy()
+        ))
+
+    def test_product_sparse_sparse(self):
+        shape = (3,3)
+        low = 1
+        high = 10
+        sparsity = 0.4
+        M1 = sparse.random.randint(
+            low = low,
+            high = high,
+            sparsity = sparsity,
+            shape = shape
+        )
+        M2 = sparse.random.randint(
+            low = low,
+            high = high,
+            sparsity = sparsity,
+            shape = shape
+        )
+        print(M1.to_numpy())
+        print(M2.to_numpy())
+        print((M1 * M2).to_numpy())
+        print(M1.to_numpy() * M2.to_numpy())
+        self.assertTrue(np.array_equal(
+            M1.to_numpy() * M2.to_numpy(),
+            (M1 * M2).to_numpy()
+        ))
+        
+
+
     
     
     

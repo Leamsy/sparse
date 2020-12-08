@@ -70,7 +70,6 @@ class array:
         \tArguments args with slice filled
         """
         args = args if isinstance(args,list) or isinstance(args,tuple) else [args]
-        print(args)
         self.__check_indexes__(args)
         args = self.__fill_slice(args)
         args = np.array(args)
@@ -106,9 +105,14 @@ class array:
             X[tuple(row[:-1].astype(np.int64))] = row[-1]
         return X
 
-    
-    
-    
+    def copy(self):
+        M = array(
+            shape = self.shape,
+            dtype = self.dtype,
+            fill_value = self.fill_value
+        )
+        M.T = self.T.copy()
+        return M
 
     # Bracket operator
 
@@ -243,13 +247,58 @@ class array:
     # Arithmetic operators
 
     def __add__(self, obj):
-        raise NotImplementedError
+        M = self.copy()
+        if isinstance(obj,array):
+            assert np.array_equal(M.shape,obj.shape), 'Dimensiones erroneas.'
+            X = np.vstack([M.T,obj.T])
+            by = np.arange(self.shape.shape[0])
+            M.T = groupby(
+                X = X, 
+                by = by,
+                func = np.sum
+            )
+        else:
+            M.fill_value += obj
+            M.T[:,-1] += obj
+        return M
 
     def __sub__(self, obj):
-        raise NotImplementedError
+        if isinstance(obj,array):
+            M = obj.copy()
+            M.T[:,-1] *= -1
+            M.fill_value *= -1
+            return self.__add__(M)
+        else:
+            return self.__add__(-obj)
 
     def __mul__(self, obj):
-        raise NotImplementedError
+        M = self.copy()
+        if isinstance(obj,array):
+            assert np.array_equal(M.shape,obj.shape), 'Dimensiones erroneas.'
+            I1 = nindex_to_oneindex(self.T[:,:-1], self.shape)
+            I2 = nindex_to_oneindex(obj.T[:,:-1], obj.shape)
+            X = np.vstack([
+                M.T,
+                obj.T,
+                np.hstack([
+                    oneindex_to_nindex(np.setdiff1d(I1, I2), self.shape),
+                    np.repeat(self.fill_value, np.setdiff1d(I1, I2).shape[0]).reshape(-1,1)
+                ]),
+                np.hstack([
+                    oneindex_to_nindex(np.setdiff1d(I2, I1), self.shape),
+                    np.repeat(self.fill_value, np.setdiff1d(I2, I1).shape[0]).reshape(-1,1)
+                ])
+            ])
+            by = np.arange(self.shape.shape[0])
+            M.T = groupby(
+                X = X, 
+                by = by,
+                func = np.prod
+            )
+        else:
+            M.fill_value *= obj
+            M.T[:,-1] *= obj
+        return M
 
     # Logical operators
 

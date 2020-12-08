@@ -39,9 +39,9 @@ def cartesian_product(X: list):
     ])
     return (generator)
 
-def groupby(X: np.array, by: int or list, func, output = None):
+def groupby(X: np.array, by: int or list or np.ndarray, func, output = None):
     """
-    groupby(X: np.array, by: int or list, func, output = None)
+    Group by function.
 
     Parameters
     ----------
@@ -61,7 +61,7 @@ def groupby(X: np.array, by: int or list, func, output = None):
     ... hola
 
     """
-    by = by if isinstance(by,list) else [by]
+    by = by if isinstance(by,list) or isinstance(by,np.ndarray) else [by]
     if output == None:
         output = [i for i in range(X.shape[1]) if i not in by]
     else:
@@ -73,6 +73,15 @@ def groupby(X: np.array, by: int or list, func, output = None):
     return Y
 
 def min_max(tuples, size):
+    """[summary]
+
+    Args:
+        tuples ([type]): [description]
+        size ([type]): [description]
+
+    Returns:
+        [type]: [description]
+    """
     minimum = np.full(size, np.inf)
     maximum = np.zeros(size)
 
@@ -129,5 +138,15 @@ def filter_coordinates(X,args):
         if isinstance(a,slice):
             Y[:,i] = (X[:,i] - a.start) / a.step
     return Y.astype(np.int64)
+
+def shape_args(args):
+    acc = []
+    for a in args:
+        if isinstance(a,list) or isinstance(a,np.ndarray):
+            acc.append(len(a))
+        if isinstance(a,slice):
+            acc.append((a.stop - a.start) / a.step)
+    return np.array(acc)
+        
 
     
