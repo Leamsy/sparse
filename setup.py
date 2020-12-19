@@ -1,4 +1,5 @@
-# python setup.py sdist bdist_wheel
+# python .\setup.py clean --all
+# python .\setup.py sdist bdist_wheel
 # python -m pip install .\dist\sparse_pkg_rojo1997-0.0.1-py3-none-any.whl --ignore-installed
 # python -m twine check dist/*
 # python -m twine upload --repository pypi dist/* --verbose

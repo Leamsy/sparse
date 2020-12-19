@@ -166,6 +166,8 @@ class array:
             dtype = self.dtype,
             fill_value = self.fill_value
         )
+        # ERROR: print(M3[40,:,[8,2,3]])
+        # Hay que mover los indices para slice y list si llegan números por reducción de la matriz.
         # Algún valor distinto de fill_value
         if indexes.shape[0] != 0:
             M.T = self.T[:,np.where(np.append(mask,True))[0]][indexes]
@@ -390,7 +392,24 @@ class array:
         raise NotImplementedError
 
     def sum(self, axis = None):
-        raise NotImplementedError
+        if axis == None:
+            return self.T[:,-1].sum() + (self.shape.prod() - self.shape[0]) * self.fill_value
+        else:
+            assert self.fill_value == 0, 'No se puede usar fill_value != 0'
+            axis = axis if isinstance(axis,list) or isinstance(axis,np.ndarray) else [axis]
+            mask = [i for i in range(self.shape.shape[0]) if i not in axis]
+            M = array(
+                shape = self.shape[mask],
+                dtype = self.dtype,
+                fill_value = self.fill_value
+            )
+            M.T = groupby(
+                X = self.T,
+                by = mask,
+                func = np.sum,
+                output = self.shape.shape[0]
+            )
+            return M
 
     def prod(self, axis = None):
         raise NotImplementedError

@@ -13,7 +13,7 @@ import numpy as np
 
 import sparse
 
-class IndexTest(unittest.TestCase):
+class Index(unittest.TestCase):
     def test_getitem_one_value(self):
         shape = (5,5)
         M1 = sparse.random.randint(
@@ -164,7 +164,7 @@ class IndexTest(unittest.TestCase):
         M2[3,:] = M1
         print(M2.to_numpy())
 
-class GeneralTest(unittest.TestCase):
+class General(unittest.TestCase):
     def test_randint(self):
         shape = (30,10)
         low = 1
@@ -328,25 +328,38 @@ class Operator(unittest.TestCase):
             sparsity = sparsity,
             shape = shape
         )
-        print(M1.to_numpy())
-        print(M2.to_numpy())
-        print((M1 * M2).to_numpy())
-        print(M1.to_numpy() * M2.to_numpy())
         self.assertTrue(np.array_equal(
             M1.to_numpy() * M2.to_numpy(),
             (M1 * M2).to_numpy()
         ))
         
-
-
+class NumpyFunction(unittest.TestCase):
+    def test_sum_axis_none(self):
+        shape = (10,10)
+        low = 1
+        high = 10
+        sparsity = 0.3
+        M = sparse.random.randint(
+            low = low,
+            high = high,
+            sparsity = sparsity,
+            shape = shape
+        )
+        self.assertTrue(M.sum() == M.to_numpy().sum())
     
-    
-    
-
-    
-
-    
-
-    
-        
-        
+    def test_sum_axis(self):
+        shape = (3,3)
+        low = 1
+        high = 10
+        sparsity = 0.3
+        M = sparse.random.randint(
+            low = low,
+            high = high,
+            sparsity = sparsity,
+            shape = shape
+        )
+        axis = 0
+        self.assertTrue(np.array_equal(
+            M.sum(axis = axis).to_numpy(),
+            M.to_numpy().sum(axis = axis)
+        ))
